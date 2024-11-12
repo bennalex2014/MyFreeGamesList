@@ -121,6 +121,7 @@ class ForumComment(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('Games.id'))
     content = db.Column(db.LargeBinary, nullable=False)
     timestamp = db.Column(db.Date, nullable=False)
+    isApprove = db.Column(db.Boolean, nullable=False)
 
 
 #  creates database - set to true for first run
@@ -160,11 +161,11 @@ if False:
         rev6 = Review(user=u3, game=pubg, text="BEST game ever!", score = 10)
 
 
-        com1 = ForumComment(user=u1,game=ow2, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2024,11,11))
-        com2 = ForumComment(user=u2,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2023,11,11))
-        com3 = ForumComment(user=u4,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2022,11,11))
-        com4 = ForumComment(user=u3,game=pubg, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2021,11,11))
-        com5 = ForumComment(user=u3,game=pubg, content=bytes("I can make multiple comments because I have unique id", 'utf-8'), timestamp=date(2021,11,11))
+        com1 = ForumComment(user=u1,game=ow2, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2024,11,11), isApprove=True)
+        com2 = ForumComment(user=u2,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2023,11,11), isApprove=True)
+        com3 = ForumComment(user=u4,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2022,11,11), isApprove=True)
+        com4 = ForumComment(user=u3,game=pubg, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2021,11,11), isApprove=True)
+        com5 = ForumComment(user=u3,game=pubg, content=bytes("I can make multiple comments because I have unique id", 'utf-8'), timestamp=date(2021,11,11), isApprove=True)
 
         db.session.add_all((owner, u1, u2, u3, u4))
         db.session.add_all((rev1, rev2, rev3, rev4, rev5, rev6))
