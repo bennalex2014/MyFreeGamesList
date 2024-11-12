@@ -10,6 +10,7 @@ python -m pip install --upgrade flask-login
 ###############################################################################
 from __future__ import annotations
 import os
+from datetime import date
 from flask import Flask, render_template, url_for, redirect
 from flask import request, session, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -62,11 +63,34 @@ def load_user(uid: int) -> User|None:
 # Database Setup
 ###############################################################################
 
+Review = db.Table(
+        'Reviews',
+        db.Model.metadata,
+        db.Column('text', db.Unicode, nullable=False),
+        db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
+        db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
+        extend_existing=True
+    )
+
+ForumComment = db.Table(
+        'ForumComments',
+        db.Model.metadata,
+        db.Column('content',db.LargeBinary, nullable=False),
+        db.Column('timestamp',db.Date, nullable=False),
+        db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
+        db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
+        extend_existing=True
+    )
+
 # Create a database model for Users
 class User(UserMixin, db.Model):
+    __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.Unicode, nullable=False)
+    isAdmin = db.Column(db.Boolean, nullable=False)
+    username = db.Column(db.Unicode, nullable=False)
     password_hash = db.Column(db.LargeBinary) # hash is a binary attribute
+    reviews = db.relationship('Game', secondary=Review, back_populates='Users')
+    forumComments = db.relationship('Game', secondary=ForumComment, back_populates='Users')
 
     # make a write-only password property that just updates the stored hash
     @property
@@ -80,14 +104,33 @@ class User(UserMixin, db.Model):
     def verify_password(self, pwd: str) -> bool:
         return pwd_hasher.check(pwd, self.password_hash)
 
-# remember that all database operations must occur within an app context
-with app.app_context():
-    db.create_all() # this is only needed if the database doesn't already exist
+class Game(db.Model):
+    __tablename__ = 'Games'
+    id = db.Column(db.Integer, primary_key=True)
+    numReviews = db.Column(db.Integer, nullable=False)
+    totalRevScore = db.Column(db.Integer, nullable=False)
+    reviews = db.relationship('User', secondary=Review, back_populates='Games')
+    forumComments = db.relationship('User', secondary=ForumComment, back_populates='Games')
+
+
+#   creates database
+#      - set to false after the first run to prevent repeated creation
+#      - place sqllite3 file in gitignore to prevent merge conflicts
+if True:
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+        # Create users to be inserted
+        # call api and create games
+        # create comments
+        # create reviews
 
 ###############################################################################
 # Route Handlers
 ###############################################################################
 
+# TODO match functions and html with database
 @app.get('/register/')
 def get_register():
     form = RegisterForm()
@@ -155,3 +198,5 @@ def get_logout():
     logout_user()
     flash('You have been logged out')
     return redirect(url_for('index'))
+
+# TODO add other required functions and html/css/scripts
