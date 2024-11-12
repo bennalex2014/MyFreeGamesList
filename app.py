@@ -104,6 +104,15 @@ class Review(db.Model):
     score = db.Column(db.Integer, nullable=False)
     text = db.Column(db.Unicode, nullable=False)
 
+    def __init__(self, user, game, text, score) -> None:
+        self.user = user
+        self.game = game
+        self.text = text
+        self.score = score
+        game.totalRevScore = game.totalRevScore + score
+        game.numReviews = game.numReviews + 1
+        super().__init__()
+
 class ForumComment(db.Model):
     __tablename__ = 'ForumComment'
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
