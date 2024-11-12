@@ -115,14 +115,15 @@ class Review(db.Model):
 
 class ForumComment(db.Model):
     __tablename__ = 'ForumComment'
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('Games.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('Games.id'))
     content = db.Column(db.LargeBinary, nullable=False)
     timestamp = db.Column(db.Date, nullable=False)
 
 
-#   creates database - set to false after the first run to prevent repeated creation
-if True:
+#  creates database - set to true for first run
+if False:
     with app.app_context():
         db.drop_all()
         db.create_all()
@@ -161,10 +162,11 @@ if True:
         com2 = ForumComment(user=u2,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2023,11,11))
         com3 = ForumComment(user=u4,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2022,11,11))
         com4 = ForumComment(user=u3,game=pubg, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2021,11,11))
+        com5 = ForumComment(user=u3,game=pubg, content=bytes("I can make multiple comments because I have unique id", 'utf-8'), timestamp=date(2021,11,11))
 
         db.session.add_all((owner, u1, u2, u3, u4))
         db.session.add_all((rev1, rev2, rev3, rev4, rev5, rev6))
-        db.session.add_all((com1, com2, com3, com4))
+        db.session.add_all((com1, com2, com3, com4, com5))
         db.session.commit()
 
 # sample query/scratchpad -> set to True to use
