@@ -1,4 +1,3 @@
 # TODO below
-    # database create and delete each time with starter data
-    # establish different pages
-    # login plumbing
+    # database create and delete with starter data -> upon first start up -> set bool to create again
+    # stub different functions
