@@ -74,6 +74,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     isAdmin = db.Column(db.Boolean, nullable=False)
     username = db.Column(db.Unicode, nullable=False)
+    email = db.Column(db.Unicode, nullable=False)
     password_hash = db.Column(db.LargeBinary) # hash is a binary attribute
     reviews = db.relationship('Review', backref='user')
     forumComments = db.relationship('ForumComment',backref='user')
@@ -181,6 +182,7 @@ if False:
         for rev in ow2.reviews:
             print(f"Review: {rev.text} \nScore: {rev.score}/10\n")
 
+
 ###############################################################################
 # Route Handlers
 ###############################################################################
@@ -200,7 +202,7 @@ def post_register():
         user = User.query.filter_by(email=form.email.data).first()
         # if the email address is free, create a new user and send to login
         if user is None:
-            user = User(email=form.email.data, password=form.password.data) # type:ignore
+            user = User(email=form.email.data, password=form.password.data, isAdmin=False, username=form.email.data) # type:ignore
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('get_login'))
@@ -231,6 +233,9 @@ def post_login():
         if user is not None and user.verify_password(form.password.data):
             # log this user in through the login_manager
             login_user(user)
+            # store the current users id and username in the session for later use
+            session['user_id'] = user.id
+            session['username'] = user.username
             # redirect the user to the page they wanted or the home page
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
@@ -261,6 +266,11 @@ def get_logout():
     return redirect(url_for('index'))
 
 # TODO Profile page -> get/post
+@app.route('/profile/<string:username>/')
+@app.route('/profile/')
+def view_profile(username: str = None):
+    username = username if username is not None else session['username']
+    return render_template('profile.html', username=username)
 
 # TODO Edit profile page -> get/post
 
@@ -278,6 +288,24 @@ def get_review():
 # TODO Add review to DB if form.validate() = True, else flash error messages
 @app.post('/review/')
 def post_review():
-    pass
-
+    form = ReviewForm()
+    if form.validate():
+        game = form.game.data
+        score = form.score.data
+        review = form.review.data
+        new_review = Review(session['user_id'], game, review, score)
+        db.session.add(new_review)
+        db.session.commit()
+        return redirect(url_for('view_profile'))
+    else:
+        for field, msg in form.errors.items():
+            flash(f"{field}: {error}")
+        return redirect(url_for('get_review'))
 # TODO Game discussion form -> including comments with their users, and accompanying time stamps
+    
+
+
+
+with app.app_context():
+    db.drop_all()
+    db.create_all()
