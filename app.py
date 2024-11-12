@@ -121,6 +121,7 @@ if True:
         db.drop_all()
         db.create_all()
 
+        # TODO complete tasks below
         # Create users to be inserted
         # call api and create games
         # create comments
@@ -136,6 +137,7 @@ def get_register():
     form = RegisterForm()
     return render_template('register.html', form=form)
 
+# TODO match functions and html with database
 @app.post('/register/')
 def post_register():
     form = RegisterForm()
@@ -158,11 +160,13 @@ def post_register():
             flash(f"{field}: {error}")
         return redirect(url_for('get_register'))
 
+# TODO match functions and html with database
 @app.get('/login/')
 def get_login():
     form = LoginForm()
     return render_template('login.html', form=form)
 
+# TODO match functions and html with database
 @app.post('/login/')
 def post_login():
     form = LoginForm()
@@ -188,10 +192,13 @@ def post_login():
             flash(f"{field}: {error}")
         return redirect(url_for('get_login'))
 
+
+# TODO home
 @app.get('/')
 def index():
     return render_template('home.html', current_user=current_user)
 
+# TODO match functions and html with database -> redirect to login page -> we do not allow non-logged in users
 @app.get('/logout/')
 @login_required
 def get_logout():
@@ -199,4 +206,10 @@ def get_logout():
     flash('You have been logged out')
     return redirect(url_for('index'))
 
-# TODO add other required functions and html/css/scripts
+# TODO Profile page -> get/post
+
+# TODO Edit profile page -> get/post
+
+# TODO Game Page -> including reviews, descriptions, score, etc.
+
+# TODO Game discussion form -> including comments with their users, and accompanying time stamps
