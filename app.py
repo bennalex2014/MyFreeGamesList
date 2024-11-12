@@ -67,25 +67,6 @@ def load_user(uid: int) -> User|None:
 # Database Setup
 ###############################################################################
 
-# Review = db.Table(
-#         'Reviews',
-#         db.Model.metadata,
-#         db.Column('text', db.Unicode, nullable=False),
-#         db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
-#         db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
-#         extend_existing=True
-#     )
-
-# ForumComment = db.Table(
-#         'ForumComments',
-#         db.Model.metadata,
-#         db.Column('content',db.LargeBinary, nullable=False),
-#         db.Column('timestamp',db.Date, nullable=False),
-#         db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
-#         db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
-#         extend_existing=True
-#     )
-
 # Create a database model for Users
 class User(UserMixin, db.Model):
     __tablename__ = 'Users'
@@ -95,8 +76,6 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.LargeBinary) # hash is a binary attribute
     reviews = db.relationship('Review', backref='user')
     forumComments = db.relationship('ForumComment',backref='user')
-    # revGames = db.relationship('Game', secondary=Review, back_populates='revUsers')
-    # comGames = db.relationship('Game', secondary=ForumComment, back_populates='comUsers')
 
     # make a write-only password property that just updates the stored hash
     @property
@@ -117,13 +96,12 @@ class Game(db.Model):
     totalRevScore = db.Column(db.Integer, nullable=False)
     reviews = db.relationship('Review', backref='game')
     forumComments = db.relationship('ForumComment',backref='game')
-    # revUsers = db.relationship('User', secondary=Review, back_populates='revGames')
-    # comUsers = db.relationship('User', secondary=ForumComment, back_populates='comGames')
 
 class Review(db.Model):
     __tablename__ = 'Reviews'
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey('Games.id'), primary_key=True)
+    score = db.Column(db.Integer, nullable=False)
     text = db.Column(db.Unicode, nullable=False)
 
 class ForumComment(db.Model):
@@ -156,7 +134,28 @@ if True:
             instance = Game(id=game.get("id"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
+        db.session.commit()
+
+        ow2 = game=Game.query.filter_by(id=540).first()
+        pubg = game=Game.query.filter_by(id=516).first()
+        fallGuys = game=Game.query.filter_by(id=523).first()
+
+        rev1 = Review(user=u1, game=ow2, text="Big downgrade from OW 1. Miss the old days", score = 3)
+        rev2 = Review(user=u2, game=ow2, text="MASSIVE MASSIVE downgrade from OW 1. Miss the old days", score = 2)
+        rev3 = Review(user=u4, game=pubg, text="downloaded. dropped. beheaded by a butter knife. uninstalled...", score = 2)
+        rev4 = Review(user=u4, game=fallGuys, text="I like to fall!", score = 7)
+        rev5 = Review(user=u3, game=fallGuys, text="I like being a guy too", score = 8)
+        rev6 = Review(user=u3, game=pubg, text="BEST game ever!", score = 10)
+
+
+        com1 = ForumComment(user=u1,game=ow2, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2024,11,11))
+        com2 = ForumComment(user=u2,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2023,11,11))
+        com3 = ForumComment(user=u4,game=fallGuys, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2022,11,11))
+        com4 = ForumComment(user=u3,game=pubg, content=bytes("I can put anything in here because of type LargeBinary", 'utf-8'), timestamp=date(2021,11,11))
+
         db.session.add_all((owner, u1, u2, u3, u4))
+        db.session.add_all((rev1, rev2, rev3, rev4, rev5, rev6))
+        db.session.add_all((com1, com2, com3, com4))
         db.session.commit()
 
 ###############################################################################
