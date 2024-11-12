@@ -89,8 +89,8 @@ class User(UserMixin, db.Model):
     isAdmin = db.Column(db.Boolean, nullable=False)
     username = db.Column(db.Unicode, nullable=False)
     password_hash = db.Column(db.LargeBinary) # hash is a binary attribute
-    reviews = db.relationship('Game', secondary=Review, back_populates='Users')
-    forumComments = db.relationship('Game', secondary=ForumComment, back_populates='Users')
+    revGames = db.relationship('Game', secondary=Review, back_populates='revUsers')
+    comGames = db.relationship('Game', secondary=ForumComment, back_populates='comUsers')
 
     # make a write-only password property that just updates the stored hash
     @property
@@ -109,23 +109,32 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numReviews = db.Column(db.Integer, nullable=False)
     totalRevScore = db.Column(db.Integer, nullable=False)
-    reviews = db.relationship('User', secondary=Review, back_populates='Games')
-    forumComments = db.relationship('User', secondary=ForumComment, back_populates='Games')
+    revUsers = db.relationship('User', secondary=Review, back_populates='revGames')
+    comUsers = db.relationship('User', secondary=ForumComment, back_populates='comGames')
 
 
-#   creates database
-#      - set to false after the first run to prevent repeated creation
-#      - place sqllite3 file in gitignore to prevent merge conflicts
+#   creates database - set to false after the first run to prevent repeated creation
 if True:
     with app.app_context():
         db.drop_all()
         db.create_all()
 
+        owner = User(isAdmin=1,username="Owner",password="ownerowner")
+        u1 = User(isAdmin=0,username="User1",password="useruser1")
+        u2 = User(isAdmin=0,username="User2",password="useruser2")
+        u3 = User(isAdmin=0,username="User3",password="useruser3")
+        u4 = User(isAdmin=0,username="User4",password="useruser4")
+        
+        
         # TODO complete tasks below
-        # Create users to be inserted
         # call api and create games
         # create comments
         # create reviews
+
+        db.session.add_all((owner, u1, u2, u3, u4))
+        db.session.commit()
+
+# TODO sample q's
 
 ###############################################################################
 # Route Handlers
