@@ -23,17 +23,11 @@
     </div>
   </header>
   <main>
-    <form method="POST">
-      {{form.hidden_tag()}}
-
-      {{form.email.label}}
-      {{form.email()}}
-      <br>
-      {{form.password.label}}
-      {{form.password()}}
-      <br>
-      {{form.submit()}}
-    </form>
+    {% if current_user.is_authenticated %}
+      <h1>Logged in as {{current_user.email}}</h1>
+    {% else %}
+      <h1>Not logged in</h1>
+    {% endif %}
   </main>
   <footer>
     <br>
