@@ -158,6 +158,15 @@ if True:
         db.session.add_all((com1, com2, com3, com4))
         db.session.commit()
 
+# sample query/scratchpad -> set to True to use
+if False:
+    with app.app_context():
+        ow2 = Game.query.filter_by(id=540).first()
+
+        # go through each review for game
+        for rev in ow2.reviews:
+            print(f"Review: {rev.text} \nScore: {rev.score}/10\n")
+
 ###############################################################################
 # Route Handlers
 ###############################################################################
