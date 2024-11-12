@@ -17,6 +17,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_required
 from flask_login import login_user, logout_user, current_user
 
+# import urllib library  + json for API 
+from urllib.request import urlopen 
+import json 
+
 # Import from local package files
 from hashers import Hasher
 from loginforms import RegisterForm, LoginForm
@@ -63,24 +67,24 @@ def load_user(uid: int) -> User|None:
 # Database Setup
 ###############################################################################
 
-Review = db.Table(
-        'Reviews',
-        db.Model.metadata,
-        db.Column('text', db.Unicode, nullable=False),
-        db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
-        db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
-        extend_existing=True
-    )
+# Review = db.Table(
+#         'Reviews',
+#         db.Model.metadata,
+#         db.Column('text', db.Unicode, nullable=False),
+#         db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
+#         db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
+#         extend_existing=True
+#     )
 
-ForumComment = db.Table(
-        'ForumComments',
-        db.Model.metadata,
-        db.Column('content',db.LargeBinary, nullable=False),
-        db.Column('timestamp',db.Date, nullable=False),
-        db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
-        db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
-        extend_existing=True
-    )
+# ForumComment = db.Table(
+#         'ForumComments',
+#         db.Model.metadata,
+#         db.Column('content',db.LargeBinary, nullable=False),
+#         db.Column('timestamp',db.Date, nullable=False),
+#         db.Column('User_id', db.ForeignKey('Users.id'),primary_key=True),
+#         db.Column('Game_id', db.ForeignKey('Games.id'),primary_key=True),
+#         extend_existing=True
+#     )
 
 # Create a database model for Users
 class User(UserMixin, db.Model):
@@ -89,8 +93,10 @@ class User(UserMixin, db.Model):
     isAdmin = db.Column(db.Boolean, nullable=False)
     username = db.Column(db.Unicode, nullable=False)
     password_hash = db.Column(db.LargeBinary) # hash is a binary attribute
-    revGames = db.relationship('Game', secondary=Review, back_populates='revUsers')
-    comGames = db.relationship('Game', secondary=ForumComment, back_populates='comUsers')
+    reviews = db.relationship('Review', backref='user')
+    forumComments = db.relationship('ForumComment',backref='user')
+    # revGames = db.relationship('Game', secondary=Review, back_populates='revUsers')
+    # comGames = db.relationship('Game', secondary=ForumComment, back_populates='comUsers')
 
     # make a write-only password property that just updates the stored hash
     @property
@@ -109,8 +115,23 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numReviews = db.Column(db.Integer, nullable=False)
     totalRevScore = db.Column(db.Integer, nullable=False)
-    revUsers = db.relationship('User', secondary=Review, back_populates='revGames')
-    comUsers = db.relationship('User', secondary=ForumComment, back_populates='comGames')
+    reviews = db.relationship('Review', backref='game')
+    forumComments = db.relationship('ForumComment',backref='game')
+    # revUsers = db.relationship('User', secondary=Review, back_populates='revGames')
+    # comUsers = db.relationship('User', secondary=ForumComment, back_populates='comGames')
+
+class Review(db.Model):
+    __tablename__ = 'Reviews'
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('Games.id'), primary_key=True)
+    text = db.Column(db.Unicode, nullable=False)
+
+class ForumComment(db.Model):
+    __tablename__ = 'ForumComment'
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('Games.id'), primary_key=True)
+    content = db.Column(db.LargeBinary, nullable=False)
+    timestamp = db.Column(db.Date, nullable=False)
 
 
 #   creates database - set to false after the first run to prevent repeated creation
@@ -125,16 +146,18 @@ if True:
         u3 = User(isAdmin=0,username="User3",password="useruser3")
         u4 = User(isAdmin=0,username="User4",password="useruser4")
         
-        
-        # TODO complete tasks below
-        # call api and create games
-        # create comments
-        # create reviews
+        gamesAPI = "https://www.freetogame.com/api/games"
+
+        response = urlopen(gamesAPI)
+        gamesList= json.loads(response.read())
+
+        for game in gamesList:
+            game.get("id")
+            instance = Game(id=game.get("id"), numReviews=0, totalRevScore=0)
+            db.session.add(instance)
 
         db.session.add_all((owner, u1, u2, u3, u4))
         db.session.commit()
-
-# TODO sample q's
 
 ###############################################################################
 # Route Handlers
