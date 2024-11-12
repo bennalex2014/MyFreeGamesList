@@ -20,6 +20,7 @@ from flask_login import login_user, logout_user, current_user
 # import urllib library  + json for API 
 from urllib.request import urlopen 
 import json 
+import ssl
 
 # Import from local package files
 from hashers import Hasher
@@ -37,7 +38,7 @@ pepfile = os.path.join(scriptdir, "pepper.bin")
 # open and read the contents of the pepper file into your pepper key
 # NOTE: you should really generate your own and not use the one from the starter
 with open(pepfile, 'rb') as fin:
-  pepper_key = fin.read()
+    pepper_key = fin.read()
 
 # create a new instance of Hasher using that pepper key
 pwd_hasher = Hasher(pepper_key)
@@ -135,7 +136,8 @@ if True:
         
         gamesAPI = "https://www.freetogame.com/api/games"
 
-        response = urlopen(gamesAPI)
+        context = ssl._create_unverified_context()
+        response = urlopen(gamesAPI, context=context)
         gamesList= json.loads(response.read())
 
         for game in gamesList:
