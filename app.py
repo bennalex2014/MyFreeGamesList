@@ -24,7 +24,7 @@ import ssl
 
 # Import from local package files
 from hashers import Hasher
-from loginforms import RegisterForm, LoginForm
+from loginforms import RegisterForm, LoginForm, ReviewForm, CommentForm
 
 ###############################################################################
 # Basic Configuration
@@ -265,5 +265,19 @@ def get_logout():
 # TODO Edit profile page -> get/post
 
 # TODO Game Page -> including reviews, descriptions, score, etc.
+@app.route('/view-game/<int:game_id>/') # page for viewing a game
+def view_game(game_id: int):
+    pass
+
+# Game Review Form
+@app.get('/review/')
+def get_review():
+    form = ReviewForm()
+    return render_template('review.html', form=form)
+# Validate Game Review
+# TODO Add review to DB if form.validate() = True, else flash error messages
+@app.post('/review/')
+def post_review():
+    pass
 
 # TODO Game discussion form -> including comments with their users, and accompanying time stamps

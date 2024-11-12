@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms.fields import PasswordField, SubmitField, EmailField
-from wtforms.validators import InputRequired, Email, EqualTo, Length
+from wtforms.fields import PasswordField, SubmitField, EmailField, SelectField, IntegerField, StringField
+from wtforms.validators import InputRequired, Email, EqualTo, Length, NumberRange
 
 # TODO change to match DB
 class RegisterForm(FlaskForm):
@@ -17,3 +17,16 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password: ", 
         validators=[InputRequired(), Length(min=8, max=256)])
     submit = SubmitField("Login")
+    
+
+# TODO change to match DB
+class ReviewForm(FlaskForm):
+    game = SelectField("Game: ", validators=[InputRequired()])
+    score = IntegerField("Rating: ", validators=[InputRequired(), NumberRange(1, 10)])
+    review = StringField("Review: ", validators=[InputRequired()])
+    submit = SubmitField("Add Review")
+
+# TODO change to match DB
+class CommentForm(FlaskForm):
+    comment = StringField("Comment: ", validators=[InputRequired(), Length(4, 255)])
+    submit = SubmitField("Add Comment")
