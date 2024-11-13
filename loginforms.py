@@ -21,7 +21,7 @@ class LoginForm(FlaskForm):
 
 # TODO change to match DB
 class ReviewForm(FlaskForm):
-    game = SelectField("Game: ", validators=[InputRequired()])
+    game = SelectField("Game: ", choices=[], validators=[InputRequired()])
     score = IntegerField("Rating: ", validators=[InputRequired(), NumberRange(1, 10)])
     review = StringField("Review: ", validators=[InputRequired()])
     submit = SubmitField("Add Review")

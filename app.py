@@ -94,6 +94,7 @@ class User(UserMixin, db.Model):
 class Game(db.Model):
     __tablename__ = 'Games'
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode, nullable=False)
     numReviews = db.Column(db.Integer, nullable=False)
     totalRevScore = db.Column(db.Integer, nullable=False)
     reviews = db.relationship('Review', backref='game')
@@ -126,16 +127,16 @@ class ForumComment(db.Model):
 
 
 #  creates database - set to true for first run
-if False:
+if True:
     with app.app_context():
         db.drop_all()
         db.create_all()
 
-        owner = User(isAdmin=1,username="Owner",password="ownerowner")
-        u1 = User(isAdmin=0,username="User1",password="useruser1")
-        u2 = User(isAdmin=0,username="User2",password="useruser2")
-        u3 = User(isAdmin=0,username="User3",password="useruser3")
-        u4 = User(isAdmin=0,username="User4",password="useruser4")
+        owner = User(isAdmin=1,username="Owner",password="12341234", email="dev@dev.com")
+        u1 = User(isAdmin=0,username="User1",password="useruser1", email="u1@dev.com")
+        u2 = User(isAdmin=0,username="User2",password="useruser2", email="u2@dev.com")
+        u3 = User(isAdmin=0,username="User3",password="useruser3", email="u3@dev.com")
+        u4 = User(isAdmin=0,username="User4",password="useruser4", email="u4@dev.com")
         
         gamesAPI = "https://www.freetogame.com/api/games"
 
@@ -145,7 +146,7 @@ if False:
 
         for game in gamesList:
             game.get("id")
-            instance = Game(id=game.get("id"), numReviews=0, totalRevScore=0)
+            instance = Game(id=game.get("id"), name=game.get("title"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
         db.session.commit()
@@ -270,7 +271,10 @@ def get_logout():
 @app.route('/profile/')
 def view_profile(username: str = None):
     username = username if username is not None else session['username']
-    return render_template('profile.html', username=username)
+    user = User.query.filter_by(username=username).first()
+    user_id = user.id
+    reviews = Review.query.filter_by(user_id=user_id).all()
+    return render_template('profile.html', username=username, reviews=reviews)
 
 # TODO Edit profile page -> get/post
 
@@ -283,6 +287,7 @@ def view_game(game_id: int):
 @app.get('/review/')
 def get_review():
     form = ReviewForm()
+    form.game.choices = [(game.id, f'{game.name}') for game in Game.query.all()]
     return render_template('review.html', form=form)
 # Validate Game Review
 # TODO Add review to DB if form.validate() = True, else flash error messages
@@ -293,19 +298,19 @@ def post_review():
         game = form.game.data
         score = form.score.data
         review = form.review.data
-        new_review = Review(session['user_id'], game, review, score)
+        new_review = Review(user=session['user_id'], game=game.data, text=review.data, score=score.data)
         db.session.add(new_review)
         db.session.commit()
         return redirect(url_for('view_profile'))
     else:
-        for field, msg in form.errors.items():
+        for field, error in form.errors.items():
             flash(f"{field}: {error}")
         return redirect(url_for('get_review'))
 # TODO Game discussion form -> including comments with their users, and accompanying time stamps
     
 
 
-
-with app.app_context():
-    db.drop_all()
-    db.create_all()
+if False:
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
