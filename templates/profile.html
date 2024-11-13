@@ -17,7 +17,7 @@
             <th>Game</th>
             <th>Review</th>
             <th>Score</th>
-            {% for review, game in reviews %}
+            {% for review in reviews %}
                 <tr>{{review.game}}</tr>
                 <tr>{{review.text}}</tr>
                 <tr>{{review.score}}</tr>
