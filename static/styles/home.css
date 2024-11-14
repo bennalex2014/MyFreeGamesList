@@ -7,16 +7,29 @@ body {
     padding: 0;
 }
 
+/* Style for the header */
 header {
     background-color: #343a40;
     color: #ffffff;
-    padding: 20px 0;
+    padding: 15px;
     text-align: center;
+    font-size: 0.9em;
 }
 
 header .container {
     max-width: 600px;
     margin: auto;
+}
+
+header a {
+    color: #ffffff;
+    margin: 0 15px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+header a:hover {
+    color: #ffc107;
 }
 
 .alert {
@@ -51,6 +64,32 @@ footer a {
 
 footer a:hover {
     color: #ffc107;
+}
+
+/* Style for the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    color: black;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #ddd;
 }
 
 /* Responsive styling */

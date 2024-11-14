@@ -95,6 +95,13 @@ class Game(db.Model):
     __tablename__ = 'Games'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
+    thumbnail = db.Column(db.LargeBinary, nullable=True)
+    description = db.Column(db.Unicode, nullable=False)
+    genre = db.Column(db.Unicode, nullable=False)
+    platform = db.Column(db.Unicode, nullable=False)
+    publisher = db.Column(db.Unicode, nullable=False)
+    developer = db.Column(db.Unicode, nullable=False)
+    releaseDate = db.Column(db.Unicode, nullable=False)
     numReviews = db.Column(db.Integer, nullable=False)
     totalRevScore = db.Column(db.Integer, nullable=False)
     reviews = db.relationship('Review', backref='game')
@@ -146,7 +153,7 @@ if True:
 
         for game in gamesList:
             game.get("id")
-            instance = Game(id=game.get("id"), name=game.get("title"), numReviews=0, totalRevScore=0)
+            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
         db.session.commit()
@@ -256,7 +263,8 @@ def post_login():
 # TODO home
 @app.get('/')
 def index():
-    return render_template('home.html', current_user=current_user)
+    games = Game.query.all()
+    return render_template('home.html', current_user=current_user, games=games)
 
 # TODO match functions and html with database -> redirect to login page -> we do not allow non-logged in users
 @app.get('/logout/')
