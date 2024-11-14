@@ -95,7 +95,7 @@ class Game(db.Model):
     __tablename__ = 'Games'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
-    thumbnail = db.Column(db.LargeBinary, nullable=True)
+    thumbnail = db.Column(db.Unicode, nullable=True)
     description = db.Column(db.Unicode, nullable=False)
     genre = db.Column(db.Unicode, nullable=False)
     platform = db.Column(db.Unicode, nullable=False)
@@ -153,7 +153,15 @@ if True:
 
         for game in gamesList:
             game.get("id")
-            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
+
+            thumbnail_url = game.get("thumbnail")
+            thumbnail_path = f"static/thumbnails/{game.get('id')}.jpg"
+    
+    # Download and save the image to the static directory
+            with urlopen(thumbnail_url, context=context) as response, open(thumbnail_path, "wb") as out_file:
+                out_file.write(response.read())
+
+            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), thumbnail=thumbnail_path, genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
         db.session.commit()
@@ -284,7 +292,7 @@ def view_profile(username: str = None):
     user = User.query.filter_by(username=username).first()
     user_id = user.id
     reviews = Review.query.filter_by(user_id=user_id).all()
-    games = db.session.query(Game.name).join(Review, Game.id == Review.game_id).filter(Review.user_id == user_id).all()
+    games = db.session.query(Review, Game.name).join(Review, Game.id == Review.game_id).filter(Review.user_id == user_id).all()
     reviews = zip(reviews, games)
     return render_template('profile.html', username=username, reviews=reviews, isCurrentUser=isCurrentUser)
 
@@ -306,11 +314,14 @@ def get_review():
 @app.post('/review/')
 def post_review():
     form = ReviewForm()
+    form.game.choices = [(game.id, f'{game.name}') for game in Game.query.all()]  # Update choices with current games in the database.
     if form.validate():
-        game = form.game.data
+        user = User.query.filter_by(id=session['user_id']).first()  # Get the user who is currently logged in.
+        game_id = form.game.data
+        game = Game.query.filter_by(id=game_id).first()
         score = form.score.data
         review = form.review.data
-        new_review = Review(user=session['user_id'], game=game.data, text=review.data, score=score.data)
+        new_review = Review(user=user, game=game, text=review, score=score)
         db.session.add(new_review)
         db.session.commit()
         return redirect(url_for('view_profile'))
