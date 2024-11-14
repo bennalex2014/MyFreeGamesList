@@ -1,0 +1,69 @@
+/* Styles for home.html */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f4f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+header .container {
+    max-width: 600px;
+    margin: auto;
+}
+
+.alert {
+    margin-bottom: 20px;
+}
+
+main {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: bold;
+    color: #343a40;
+}
+
+footer {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 15px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+footer a {
+    color: #ffffff;
+    margin: 0 15px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: #ffc107;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    main {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    footer {
+        font-size: 0.8em;
+    }
+}

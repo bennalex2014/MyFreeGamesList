@@ -1,0 +1,88 @@
+/* Styles for profile.html */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f4f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #343a40;
+    font-size: 2em;
+    text-align: center;
+    margin: 20px 0;
+}
+
+#reviews {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #343a40;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+td {
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+#links {
+    text-align: center;
+    margin: 20px;
+}
+
+#links a {
+    color: #343a40;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 1px solid #343a40;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#links a:hover {
+    background-color: #ffc107;
+    color: #343a40;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    #reviews {
+        width: 90%;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+
+    #links a {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}

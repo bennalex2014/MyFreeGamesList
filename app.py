@@ -270,11 +270,15 @@ def get_logout():
 @app.route('/profile/<string:username>/')
 @app.route('/profile/')
 def view_profile(username: str = None):
+    # if no username is provided, pull up current users profile, else pull up the profile of the provided username
     username = username if username is not None else session['username']
+    isCurrentUser = username == session['username']
     user = User.query.filter_by(username=username).first()
     user_id = user.id
     reviews = Review.query.filter_by(user_id=user_id).all()
-    return render_template('profile.html', username=username, reviews=reviews)
+    games = db.session.query(Game.name).join(Review, Game.id == Review.game_id).filter(Review.user_id == user_id).all()
+    reviews = zip(reviews, games)
+    return render_template('profile.html', username=username, reviews=reviews, isCurrentUser=isCurrentUser)
 
 # TODO Edit profile page -> get/post
 
