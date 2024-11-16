@@ -10,7 +10,7 @@ python -m pip install --upgrade flask-login
 ###############################################################################
 from __future__ import annotations
 import os
-from datetime import date
+from datetime import date, datetime
 from flask import Flask, render_template, url_for, redirect
 from flask import request, session, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -95,7 +95,7 @@ class Game(db.Model):
     __tablename__ = 'Games'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, nullable=False)
-    thumbnail = db.Column(db.LargeBinary, nullable=True)
+    thumbnail = db.Column(db.Unicode, nullable=True)
     description = db.Column(db.Unicode, nullable=False)
     genre = db.Column(db.Unicode, nullable=False)
     platform = db.Column(db.Unicode, nullable=False)
@@ -153,7 +153,15 @@ if True:
 
         for game in gamesList:
             game.get("id")
-            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
+
+            thumbnail_url = game.get("thumbnail")
+            thumbnail_path = f"static/thumbnails/{game.get('id')}.jpg"
+    
+    # Download and save the image to the static directory
+            with urlopen(thumbnail_url, context=context) as response, open(thumbnail_path, "wb") as out_file:
+                out_file.write(response.read())
+
+            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), thumbnail=thumbnail_path, genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
         db.session.commit()
@@ -284,16 +292,11 @@ def view_profile(username: str = None):
     user = User.query.filter_by(username=username).first()
     user_id = user.id
     reviews = Review.query.filter_by(user_id=user_id).all()
-    games = db.session.query(Game.name).join(Review, Game.id == Review.game_id).filter(Review.user_id == user_id).all()
+    games = db.session.query(Review, Game.name).join(Review, Game.id == Review.game_id).filter(Review.user_id == user_id).all()
     reviews = zip(reviews, games)
     return render_template('profile.html', username=username, reviews=reviews, isCurrentUser=isCurrentUser)
-
+    
 # TODO Edit profile page -> get/post
-
-# TODO Game Page -> including reviews, descriptions, score, etc.
-@app.route('/view-game/<int:game_id>/') # page for viewing a game
-def view_game(game_id: int):
-    pass
 
 # Game Review Form
 @app.get('/review/')
@@ -306,11 +309,14 @@ def get_review():
 @app.post('/review/')
 def post_review():
     form = ReviewForm()
+    form.game.choices = [(game.id, f'{game.name}') for game in Game.query.all()]  # Update choices with current games in the database.
     if form.validate():
-        game = form.game.data
+        user = User.query.filter_by(id=session['user_id']).first()  # Get the user who is currently logged in.
+        game_id = form.game.data
+        game = Game.query.filter_by(id=game_id).first()
         score = form.score.data
         review = form.review.data
-        new_review = Review(user=session['user_id'], game=game.data, text=review.data, score=score.data)
+        new_review = Review(user=user, game=game, text=review, score=score)
         db.session.add(new_review)
         db.session.commit()
         return redirect(url_for('view_profile'))
@@ -318,9 +324,59 @@ def post_review():
         for field, error in form.errors.items():
             flash(f"{field}: {error}")
         return redirect(url_for('get_review'))
-# TODO Game discussion form -> including comments with their users, and accompanying time stamps
-    
 
+# Game discussion forum -> including comments with their users, and accompanying time stamps
+@app.get("/game/<int:gameID>/")
+def view_game(gameID: int):
+    form = CommentForm()
+    game = Game.query.filter_by(id=gameID).first()
+    thumbnail = "/" + game.thumbnail
+    users = User.query.all()
+    return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users)
+
+@app.post("/game/<int:gameID>/")
+def post_game(gameID: int): # Post a review from the game page
+    form = ReviewForm()
+    game = Game.query.filter_by(id=gameID).first()
+    form.game.choices = (gameID, f'{game.name}')
+    if form.validate():
+        user = User.query.filter_by(id=session['user_id']).first()
+        score = form.score.data
+        review = form.review.data
+        new_review = Review(user=user, game=game, text=review, score=score)
+        db.session.add(new_review)
+        db.session.commit()
+        return redirect(f"/game/{gameID}/")
+    else:
+        for field, error in form.errors.items():
+            flash(f"{field}: {error}")
+        return redirect(f"/game/{gameID}/")
+
+# Game discussion forum -> including comments with their users, and accompanying time stamps
+@app.get("/forum/<int:gameID>/")
+def get_forum(gameID: int):
+    form = CommentForm()
+    game = Game.query.filter_by(id=gameID).first()
+    comments = ForumComment.query.filter_by(game_id=gameID).all()
+    users = User.query.all()
+    return render_template('game_forum.html', current_user=current_user, form=form, game=game, comments=comments, users=users)
+
+@app.post("/forum/<int:gameID>/")
+def post_forum(gameID: int):
+    form = CommentForm()
+    if form.validate():
+        user = User.query.filter_by(id=session['user_id']).first()
+        content = form.comment.data
+        current_date = datetime.today().date()
+
+        new_comment = ForumComment(user_id=user.id, game_id=gameID, content=bytes(content, 'utf-8'), timestamp=date(current_date.year, current_date.month, current_date.day), isApprove=True)
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(f"/forum/{gameID}/")
+    else:
+        for field, error in form.errors.items():
+            flash(f"{field}: {error}")
+    return redirect(f"/forum/{gameID}/")
 
 if False:
     with app.app_context():
