@@ -328,10 +328,11 @@ def post_review():
 # Game discussion forum -> including comments with their users, and accompanying time stamps
 @app.get("/game/<int:gameID>/")
 def view_game(gameID: int):
-    form = CommentForm()
+    form = ReviewForm()
     game = Game.query.filter_by(id=gameID).first()
     thumbnail = "/" + game.thumbnail
     users = User.query.all()
+    form.game.choices = [(game.id, f'{game.name}')]
     return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users)
 
 @app.post("/game/<int:gameID>/")

@@ -55,7 +55,7 @@
       <tbody>
         {% for game in games %}
         <tr>
-          <td>{{ game.name }}</td>
+          <td><a href="/game/{{game.id}}">{{ game.name }}</a></td>
           <td><img src="{{ game.thumbnail }}" alt="{{ game.name }}" width="100"></td>
           <td>{{ game.description }}</td>
           <td>{{ game.genre }}</td>

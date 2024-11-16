@@ -21,12 +21,12 @@ class LoginForm(FlaskForm):
 
 # TODO change to match DB
 class ReviewForm(FlaskForm):
-    game = SelectField("Game: ", choices=[], validators=[InputRequired()])
+    game = SelectField("Game: ", choices=[])
     score = IntegerField("Rating: ", validators=[InputRequired(), NumberRange(1, 10)])
     review = StringField("Review: ", validators=[InputRequired()])
     submit = SubmitField("Add Review")
 
 # TODO change to match DB
 class CommentForm(FlaskForm):
-    comment = StringField("Comment: ", validators=[InputRequired(), Length(4, 255)])
+    comment = StringField("Comment: ", validators=[InputRequired(), Length(3, 255)])
     submit = SubmitField("Add Comment")
