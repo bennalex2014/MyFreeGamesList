@@ -128,7 +128,7 @@ class ForumComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     game_id = db.Column(db.Integer, db.ForeignKey('Games.id'))
-    content = db.Column(db.LargeBinary, nullable=False)
+    content = db.Column(db.Unicode, nullable=False)
     timestamp = db.Column(db.Date, nullable=False)
     isApprove = db.Column(db.Boolean, nullable=False)
 
@@ -333,7 +333,8 @@ def view_game(gameID: int):
     thumbnail = "/" + game.thumbnail
     users = User.query.all()
     form.game.choices = [(game.id, f'{game.name}')]
-    return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users)
+    hasReviewed = True if Review.query.filter_by(user_id=session['user_id'], game_id=gameID).first() else False
+    return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users, hasReviewed=hasReviewed)
 
 @app.post("/game/<int:gameID>/")
 def post_game(gameID: int): # Post a review from the game page
@@ -370,7 +371,7 @@ def post_forum(gameID: int):
         content = form.comment.data
         current_date = datetime.today().date()
 
-        new_comment = ForumComment(user_id=user.id, game_id=gameID, content=bytes(content, 'utf-8'), timestamp=date(current_date.year, current_date.month, current_date.day), isApprove=True)
+        new_comment = ForumComment(user_id=user.id, game_id=gameID, content=content, timestamp=date(current_date.year, current_date.month, current_date.day), isApprove=True)
         db.session.add(new_comment)
         db.session.commit()
         return redirect(f"/forum/{gameID}/")

@@ -40,6 +40,7 @@
     </p>
 
     {% if current_user.is_authenticated %}
+    {% if not hasReviewed %}
     <h2>What do you think of {{game.name}}?</h2>
     <form method="POST">
         {{form.hidden_tag()}}
@@ -54,6 +55,9 @@
         {{form.review()}}
         <br><br>
         {{form.submit()}}
+    {% else %}
+    <h2>You have already reviewed {{game.name}}.</h2>
+    {% endif %}
     </form>
     {% else %}
     <h2>You must be logged in to share your thoughts on {{game.name}}.</h2>
