@@ -379,33 +379,39 @@ def post_forum(gameID: int):
 # BEGIN Flask-SocketIO handlers
 ###############################################################################
 
-# @socketio.on("connect", namespace="/chat")
-# def io_chat_join(auth):
-#     # determine which room the client is joining based on their session
-#     room = session.get("room-code")
-#     join_room(room)
+@socketio.on("connect", namespace="/forum/<int:game_id>")
+def io_chat_join(game_id: int, auth):
+    # determine which forum the client is joining based on the game they are viewing
+    room = f"forum-{game_id}"
+    join_room(room)
 
-# @socketio.on("connect", namespace="/forum/<int:game_id>")
-# def io_forum_connect_dynamic(game_id):
-#     room = f"forum_{game_id}"
-#     join_room(room)
-#     emit("message", {"message": f"Connected to room {room}"})
+@socketio.on("disconnect", namespace="/forum/<int:game_id>")
+def io_chat_leave(game_id: int):
+    # determine which forum the client is leaving based on the game they are viewing
+    room = f"forum-{game_id}"
+    leave_room(room)
 
-# @socketio.on("disconnect", namespace="/chat")
-# def io_chat_leave():
-#     # determine which room the client is leaving based on their session
-#     room = session.get('room-code')
-#     leave_room(room)
+@socketio.on("send-message", namespace="/forum/<int:game_id>")
+def io_chat_message(game_id: int, msg_data):
+    # determine which forum the client is sending to based on the game they are viewing
+    room = f"forum-{game_id}"
+    username = session['username']
 
-# @socketio.on("send-message", namespace="/chat")
-# def io_chat_message(msg_data):
-#     room = session.get('room-code')
-#     user_tag = session.get('user-tag')
-#     msg = msg_data.get('text')
-#     emit("receive-message", {
-#         'text': msg,
-#         'user': user_tag
-#     }, to=room)
+    # get message timestamp
+    current_date = datetime.now()
+
+    msg = msg_data.get('text')
+    emit("receive-message", {
+        'text': msg,
+        'user': username,
+        'timestamp': current_date.strftime("%Y-%m-%d at %H:%M")
+    }, to=room)
+
+    user = User.query.filter_by(id=session['user_id']).first()
+    new_comment = ForumComment(user_id=user.id, game_id=game_id, content=msg, timestamp=date(current_date.year, current_date.month, current_date.day), isApprove=True)
+    db.session.add(new_comment)
+    db.session.commit()
+
 
 if False:
     with app.app_context():
