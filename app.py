@@ -16,6 +16,8 @@ from flask import request, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_required
 from flask_login import login_user, logout_user, current_user
+from flask_socketio import SocketIO
+from flask_socketio import emit, join_room, leave_room
 
 # import urllib library  + json for API 
 from urllib.request import urlopen 
@@ -49,6 +51,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'correcthorsebatterystaple'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{dbfile}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# connect Socket IO to the Flask app
+socketio = SocketIO(app)
 
 # Getting the database object handle from the app
 db = SQLAlchemy(app)
@@ -152,16 +157,7 @@ if True:
         gamesList= json.loads(response.read())
 
         for game in gamesList:
-            game.get("id")
-
-            thumbnail_url = game.get("thumbnail")
-            thumbnail_path = f"static/thumbnails/{game.get('id')}.jpg"
-    
-    # Download and save the image to the static directory
-            with urlopen(thumbnail_url, context=context) as response, open(thumbnail_path, "wb") as out_file:
-                out_file.write(response.read())
-
-            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), thumbnail=thumbnail_path, genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
+            instance = Game(id=game.get("id"), name=game.get("title"), description=game.get("short_description"), thumbnail=game.get("thumbnail"), genre=game.get("genre"), platform=game.get("platform"), publisher=game.get("publisher"), developer=game.get("developer"), releaseDate=game.get("release_date"), numReviews=0, totalRevScore=0)
             db.session.add(instance)
 
         db.session.commit()
@@ -268,11 +264,10 @@ def post_login():
         return redirect(url_for('get_login'))
 
 
-# TODO home
+# home
 @app.get('/')
 def index():
-    games = Game.query.all()
-    return render_template('home.html', current_user=current_user, games=games)
+    return render_template('home.html', current_user=current_user)
 
 # TODO match functions and html with database -> redirect to login page -> we do not allow non-logged in users
 @app.get('/logout/')
@@ -379,6 +374,38 @@ def post_forum(gameID: int):
         for field, error in form.errors.items():
             flash(f"{field}: {error}")
     return redirect(f"/forum/{gameID}/")
+
+###############################################################################
+# BEGIN Flask-SocketIO handlers
+###############################################################################
+
+# @socketio.on("connect", namespace="/chat")
+# def io_chat_join(auth):
+#     # determine which room the client is joining based on their session
+#     room = session.get("room-code")
+#     join_room(room)
+
+# @socketio.on("connect", namespace="/forum/<int:game_id>")
+# def io_forum_connect_dynamic(game_id):
+#     room = f"forum_{game_id}"
+#     join_room(room)
+#     emit("message", {"message": f"Connected to room {room}"})
+
+# @socketio.on("disconnect", namespace="/chat")
+# def io_chat_leave():
+#     # determine which room the client is leaving based on their session
+#     room = session.get('room-code')
+#     leave_room(room)
+
+# @socketio.on("send-message", namespace="/chat")
+# def io_chat_message(msg_data):
+#     room = session.get('room-code')
+#     user_tag = session.get('user-tag')
+#     msg = msg_data.get('text')
+#     emit("receive-message", {
+#         'text': msg,
+#         'user': user_tag
+#     }, to=room)
 
 if False:
     with app.app_context():
