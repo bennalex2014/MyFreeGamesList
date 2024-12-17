@@ -5,6 +5,7 @@ from wtforms.validators import InputRequired, Email, EqualTo, Length, NumberRang
 # TODO change to match DB
 class RegisterForm(FlaskForm):
     email = EmailField("Email: ", validators=[InputRequired(), Email()])
+    username = StringField("Username: ", validators=[InputRequired(), Length(min=3, max=24)])
     password = PasswordField("Password: ", 
         validators=[InputRequired(), Length(min=8, max=256)])
     confirm_password = PasswordField("Confirm Password: ", 
