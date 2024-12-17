@@ -63,6 +63,29 @@
     <h2>You must be logged in to share your thoughts on {{game.name}}.</h2>
     {% endif %}
 
+
+    <div id="reviews">
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Score</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td>{{users[review.user_id-1].username}}</td>
+                    <td>{{review.score}}</td>
+                    <td>{{review.text}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
     <footer>
         {% if current_user.is_authenticated %}
         <a href="/profile"> View Profile </a>

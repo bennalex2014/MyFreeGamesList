@@ -134,6 +134,41 @@ footer a:hover {
     color: #ffc107;
 }
 
+/* Styles for the #reviews section */
+#reviews {
+    width: 80%;
+    margin: 30px auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#reviews table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 1em;
+}
+
+#reviews th, #reviews td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#reviews th {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+#reviews tr:nth-child(even) {
+    background-color: #f3f4f6;
+}
+
+#reviews tr:hover {
+    background-color: #e9ecef;
+}
+
 /* Responsive styling */
 @media (max-width: 768px) {
     p {
@@ -146,5 +181,9 @@ footer a:hover {
 
     h1, h2 {
         font-size: 2em;
+    }
+
+    #reviews {
+        width: 90%;
     }
 }
