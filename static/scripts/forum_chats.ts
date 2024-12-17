@@ -1,8 +1,11 @@
 var io: any;
 
 namespace SocketChat {
+    const game_id = document.getElementById("game_id").innerText;
+
     // maining the socket connection in this namespace
-    export let socket = io.connect("/forum/");
+    export let socket = io.connect(`/forum/${game_id}`);
+    socket.id = game_id;
 
     // define interfaces matching the message formats used on socket events
     export interface OutStatus {
@@ -22,8 +25,7 @@ namespace SocketChat {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const forumLink = <HTMLAnchorElement> document.getElementById("forum-link");
-    SocketChat.socket = io.connect(forumLink.href);
+    //const forumLink = <HTMLAnchorElement> document.getElementById("forum-link");
 
     // attach standard event listeners to the socket
     SocketChat.socket.on("connect", joinRoom);

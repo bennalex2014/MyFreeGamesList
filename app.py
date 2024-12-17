@@ -331,7 +331,8 @@ def view_game(gameID: int):
     users = User.query.all()
     form.game.choices = [(game.id, f'{game.name}')]
     hasReviewed = True if Review.query.filter_by(user_id=session['user_id'], game_id=gameID).first() else False
-    return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users, hasReviewed=hasReviewed)
+    reviews = Review.query.filter_by(game_id=gameID).all()
+    return render_template('game.html', current_user=current_user, form=form, game=game, thumbnail=thumbnail, users=users, hasReviewed=hasReviewed, reviews=reviews)
 
 @app.post("/game/<int:gameID>/")
 def post_game(gameID: int): # Post a review from the game page
@@ -358,6 +359,7 @@ def get_forum(gameID: int):
     game = Game.query.filter_by(id=gameID).first()
     comments = ForumComment.query.filter_by(game_id=gameID).all()
     users = User.query.all()
+    session['room-code'] = gameID
     return render_template('game_forum.html', current_user=current_user, form=form, game=game, comments=comments, users=users)
 
 @app.post("/forum/<int:gameID>/")
