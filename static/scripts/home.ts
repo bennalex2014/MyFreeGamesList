@@ -39,13 +39,13 @@ async function loadGames() {
 async function fillRow(game: FreeToGameAPI.Game, row: HTMLTableRowElement) {
     const nameCell = row.insertCell();
     const gameLink = document.createElement("a");
-    gameLink.href = `/game/${game.id}`;
+    gameLink.href = game.game_url;
     gameLink.innerText = game.title;
     nameCell.appendChild(gameLink);
 
     const thumbnailCell = row.insertCell();
     const thumbnailLink = document.createElement("img")
-    thumbnailLink.src = `static/thumbnails/${game.id}.jpg`;
+    thumbnailLink.src = game.thumbnail;
     thumbnailLink.alt = game.title;
     thumbnailLink.width = 100;
     thumbnailCell.appendChild(thumbnailLink);
