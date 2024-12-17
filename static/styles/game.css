@@ -169,6 +169,15 @@ footer a:hover {
     background-color: #e9ecef;
 }
 
+/* Styling for the #reviewScore */
+#reviewScore {
+    text-align: center;
+    color: #343a40;
+    font-size: 2em;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
 /* Responsive styling */
 @media (max-width: 768px) {
     p {

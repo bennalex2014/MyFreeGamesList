@@ -39,7 +39,10 @@
 
         Description:
         {{game.description}}
+
     </p>
+
+    <h1 id="reviewScore">Global Rating: {{(game.totalRevScore / game.numReviews)|round(2)}}</h1>
 
     {% if current_user.is_authenticated %}
     {% if not hasReviewed %}
