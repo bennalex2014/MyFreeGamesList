@@ -1,11 +1,11 @@
 var io;
 var SocketChat;
 (function (SocketChat) {
-    SocketChat.socket = io.connect("/forum/");
+    const game_id = document.getElementById("game_id").innerText;
+    SocketChat.socket = io.connect(`/forum/${game_id}`);
+    SocketChat.socket.id = game_id;
 })(SocketChat || (SocketChat = {}));
 document.addEventListener("DOMContentLoaded", async () => {
-    const forumLink = document.getElementById("forum-link");
-    SocketChat.socket = io.connect(forumLink.href);
     SocketChat.socket.on("connect", joinRoom);
     SocketChat.socket.on("disconnect", leaveRoom);
     SocketChat.socket.on("receive-message", receiveMessage);

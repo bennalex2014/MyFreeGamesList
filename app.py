@@ -137,9 +137,12 @@ class ForumComment(db.Model):
     timestamp = db.Column(db.Date, nullable=False)
     isApprove = db.Column(db.Boolean, nullable=False)
 
+f = open("firstRun.txt", "r")
+firstRun = f.read()
+f.close()
 
 #  creates database - set to true for first run
-if True:
+if firstRun == "1":
     with app.app_context():
         db.drop_all()
         db.create_all()
@@ -184,6 +187,10 @@ if True:
         db.session.add_all((rev1, rev2, rev3, rev4, rev5, rev6))
         db.session.add_all((com1, com2, com3, com4, com5))
         db.session.commit()
+
+        f = open("firstRun.txt", "w")
+        f.write("0")
+        f.close()
 
 # sample query/scratchpad -> set to True to use
 if False:
