@@ -6,11 +6,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadGames();
 });
 async function loadGames() {
+    // fetch all games and pass them to appendComment in order
     const response = await fetch(FreeToGameAPI.baseURL);
     const gameIndex = await validateJSON(response);
+    // get the table body
     const gameTable = document.getElementById("game-table-body");
     for (const game of gameIndex) {
-        const row = gameTable.insertRow();
+        const row = document.createElement("tr");
+        gameTable.appendChild(row);
         fillRow(game, row);
     }
 }

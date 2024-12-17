@@ -30,7 +30,8 @@ async function loadGames() {
     const gameTable = <HTMLTableElement> document.getElementById("game-table-body");
 
     for (const game of gameIndex) {
-        const row = gameTable.insertRow();
+        const row = <HTMLTableRowElement> document.createElement("tr");
+        gameTable.appendChild(row);
         fillRow(game, row);
     }
 }

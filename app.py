@@ -267,6 +267,8 @@ def post_login():
 # home
 @app.get('/')
 def index():
+    if session.get('user_id') is None:
+        session['user_id']  = -1
     return render_template('home.html', current_user=current_user)
 
 # TODO match functions and html with database -> redirect to login page -> we do not allow non-logged in users
