@@ -28,9 +28,10 @@
             {% endfor %}
         </div>
     </header>
+    <input id="gameID" type="hidden" value="{{game.id}}">
 
     <h1>{{game.name}}</h1>
-    <img src="/static/thumbnails/{{game.id}}.jpg" alt="{{ game.name }}" width="500">
+    <img id="gameIMG" src="" alt="{{ game.name }}" width="500">
 
     <p>
         {{game.name}} is a {{game.genre}} game developed by {{game.developer}} and published by {{game.publisher}}.

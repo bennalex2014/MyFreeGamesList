@@ -1,5 +1,5 @@
 namespace FTG_API {
-    export const baseURL: string = `https://www.freetogame.com/api/games`;
+    export const baseURL: string = `https://www.freetogame.com/api/`;
     
     // define interfaces to match the API
     export interface Game {
@@ -18,56 +18,21 @@ namespace FTG_API {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    //loadGame();
+    loadGame();
 });
 
 async function loadGame() {
+    const gameIDField = <HTMLInputElement> document.getElementById("gameID");
+    const gameID = gameIDField.value;
 
     // fetch all games and pass them to appendComment in order
-    const response = await fetch(`${FreeToGameAPI.baseURL}`);
-    const gameIndex = <Array<FreeToGameAPI.Game>> await validateJSON(response);
+    const response = await fetch(`${FTG_API.baseURL}game?id=${gameID}`);
+    const game = <FTG_API.Game> await vJSON(response);
 
-    // get the table body
-    const gameTable = <HTMLTableElement> document.getElementById("game-table-body");
+    // get the img body
+    const thumbnailIMG = <HTMLImageElement> document.getElementById("gameIMG");
 
-    for (const game of gameIndex) {
-        const row = <HTMLTableRowElement> document.createElement("tr");
-        gameTable.appendChild(row);
-        fill(game, row);
-    }
-}
-
-async function fill(game: FreeToGameAPI.Game, row: HTMLTableRowElement) {
-    const nameCell = row.insertCell();
-    const gameLink = document.createElement("a");
-    gameLink.href = `/game/${game.id}`;
-    gameLink.innerText = game.title;
-    nameCell.appendChild(gameLink);
-
-    const thumbnailCell = row.insertCell();
-    const thumbnailLink = document.createElement("img")
-    thumbnailLink.src = game.thumbnail;
-    thumbnailLink.alt = game.title;
-    thumbnailLink.width = 100;
-    thumbnailCell.appendChild(thumbnailLink);
-
-    const descriptionCell = row.insertCell();
-    descriptionCell.innerText = game.short_description;
-
-    const genreCell = row.insertCell();
-    genreCell.innerText = game.genre;
-
-    const platformCell = row.insertCell();
-    platformCell.innerText = game.platform;
-    
-    const publisherCell = row.insertCell();
-    publisherCell.innerText = game.publisher;
-    
-    const developerCell = row.insertCell();
-    developerCell.innerText = game.developer;
-
-    const releaseDateCell = row.insertCell();
-    releaseDateCell.innerText = game.release_date;
+    thumbnailIMG.src = game.thumbnail;
 }
 
 async function vJSON(response: Response): Promise<any> {
