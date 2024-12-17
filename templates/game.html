@@ -41,8 +41,11 @@
         {{game.description}}
 
     </p>
-
+    {% if game.numReviews > 0 %}
     <h1 id="reviewScore">Global Rating: {{(game.totalRevScore / game.numReviews)|round(2)}}</h1>
+    {% else %}
+    <h1 id="reviewScore">No reviews yet!</h1>
+    {% endif %}
 
     {% if current_user.is_authenticated %}
     {% if not hasReviewed %}

@@ -221,7 +221,7 @@ def post_register():
         user = User.query.filter_by(email=form.email.data).first()
         # if the email address is free, create a new user and send to login
         if user is None:
-            user = User(email=form.email.data, password=form.password.data, isAdmin=False, username=form.email.data) # type:ignore
+            user = User(email=form.email.data, password=form.password.data, isAdmin=False, username=form.username.data) # type:ignore
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('get_login'))
@@ -386,42 +386,6 @@ def post_forum(gameID: int):
             flash(f"{field}: {error}")
     return redirect(f"/forum/{gameID}/")
 
-###############################################################################
-# BEGIN Flask-SocketIO handlers
-###############################################################################
-
-@socketio.on("connect", namespace="/forum/<int:game_id>")
-def io_chat_join(game_id: int, auth):
-    # determine which forum the client is joining based on the game they are viewing
-    room = f"forum-{game_id}"
-    join_room(room)
-
-@socketio.on("disconnect", namespace="/forum/<int:game_id>")
-def io_chat_leave(game_id: int):
-    # determine which forum the client is leaving based on the game they are viewing
-    room = f"forum-{game_id}"
-    leave_room(room)
-
-@socketio.on("send-message", namespace="/forum/<int:game_id>")
-def io_chat_message(game_id: int, msg_data):
-    # determine which forum the client is sending to based on the game they are viewing
-    room = f"forum-{game_id}"
-    username = session['username']
-
-    # get message timestamp
-    current_date = datetime.now()
-
-    msg = msg_data.get('text')
-    emit("receive-message", {
-        'text': msg,
-        'user': username,
-        'timestamp': current_date.strftime("%Y-%m-%d at %H:%M")
-    }, to=room)
-
-    user = User.query.filter_by(id=session['user_id']).first()
-    new_comment = ForumComment(user_id=user.id, game_id=game_id, content=msg, timestamp=date(current_date.year, current_date.month, current_date.day), isApprove=True)
-    db.session.add(new_comment)
-    db.session.commit()
 
 
 if False:
