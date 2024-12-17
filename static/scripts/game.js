@@ -1,21 +1,20 @@
-var FreeToGameAPI;
-(function (FreeToGameAPI) {
-    FreeToGameAPI.baseURL = `https://www.freetogame.com/api/games`;
-})(FreeToGameAPI || (FreeToGameAPI = {}));
+var FTG_API;
+(function (FTG_API) {
+    FTG_API.baseURL = `https://www.freetogame.com/api/games`;
+})(FTG_API || (FTG_API = {}));
 document.addEventListener("DOMContentLoaded", async () => {
-    loadGames();
 });
-async function loadGames() {
-    const response = await fetch(FreeToGameAPI.baseURL);
+async function loadGame() {
+    const response = await fetch(`${FreeToGameAPI.baseURL}`);
     const gameIndex = await validateJSON(response);
     const gameTable = document.getElementById("game-table-body");
     for (const game of gameIndex) {
         const row = document.createElement("tr");
         gameTable.appendChild(row);
-        fillRow(game, row);
+        fill(game, row);
     }
 }
-async function fillRow(game, row) {
+async function fill(game, row) {
     const nameCell = row.insertCell();
     const gameLink = document.createElement("a");
     gameLink.href = `/game/${game.id}`;
@@ -40,7 +39,7 @@ async function fillRow(game, row) {
     const releaseDateCell = row.insertCell();
     releaseDateCell.innerText = game.release_date;
 }
-async function validateJSON(response) {
+async function vJSON(response) {
     if (response.ok) {
         return response.json();
     }
