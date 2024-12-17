@@ -39,7 +39,7 @@ async function loadGames() {
 async function fillRow(game: FreeToGameAPI.Game, row: HTMLTableRowElement) {
     const nameCell = row.insertCell();
     const gameLink = document.createElement("a");
-    gameLink.href = game.game_url;
+    gameLink.href = `/game/${game.id}`;
     gameLink.innerText = game.title;
     nameCell.appendChild(gameLink);
 
